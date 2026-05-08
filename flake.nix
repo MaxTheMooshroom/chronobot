@@ -22,7 +22,7 @@
 
         src = self.outPath;
 
-        cargoHash = "sha256-oJ+i/4ztX2mfp/39tHNYbPiwBeATyRPydT4GfbohYQU=";
+        cargoHash = "sha256-vPmrNdU4DXC1fxsmKYRQsFtfOifkEmYg2xV1EETOK1U=";
 
         meta = {
           description = "Discord bot for running chronomutants.";
@@ -34,6 +34,7 @@
       perSystem = { self', pkgs, ... }: {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            rustc
             cargo
             clippy
             rustfmt

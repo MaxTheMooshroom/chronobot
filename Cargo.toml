@@ -1,9 +1,26 @@
 [package]
-name = "chronobot"
-version = "0.1.0"
-edition = "2024"
+  edition = "2024"
+  rust-version = "1.91.1"
+
+  name = "chronobot"
+  version = "0.1.0"
+  description = "A program for running games of chronomutants in various settings."
+
+  license = "MIT"
+  authors = [ "Maxine Zick <maxine@pnk.dev>" ]
+  repository = "https://github.com/MaxTheMooshroom/chronobot"
 
 [dependencies]
-anyhow = "1.0.102"
-clap = { version = "4.6.1", features = ["derive"] }
-phf = "0.13.1"
+  anyhow = "1.0.102"
+  clap = { version = "4.6.1", features = ["derive"] }
+  dotenvy = "0.15.7"
+  phf = "0.13.1"
+  rand = "0.10.1"
+
+[dev-dependencies]
+  criterion = "0.8.2"
+
+[[bench]]
+  name = "strcat"
+  harness = false
+
