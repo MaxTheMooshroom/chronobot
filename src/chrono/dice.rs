@@ -26,6 +26,9 @@
 //! | * | Triumph |
 //! | X | Despair |
 //!
+//! NOTE:   "blank" can be denoted either by a lack of any characters,
+//!         or by a single "B" character
+//!
 //! The number of items delimited by the `/` character MUST match the value
 //! provided for the "Number of Sides" field.
 //!
@@ -41,16 +44,17 @@
 //! For convenience, the [`RollAxes`] can be added together to evaluate the
 //! total outcome.
 //! ```rust
-//! let a = RollAxes::PassFail(PassFail{ outcome: true, outstanding: true });
-//! let b = RollAxes::PassFail(PassFail{ outcome: false, outstanding: false });
+//! let a = RollAxes::PassFail{ outcome: true, outstanding: true };
+//! let b = RollAxes::PassFail{ outcome: false, outstanding: false };
 //!
 //! // DiceRollResult {
 //! //     passfail:  0,
+//! //     blank:     0,
 //! //     luck:      0,
 //! //     triumph:   1,
 //! //     despair:   0,
 //! // }
-//! let result: DiceRollResult = a + b;
+//! let result: DiceRollResult = &a + &b;
 //! ```
 //!
 
