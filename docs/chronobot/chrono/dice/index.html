@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This module govorns dice-rolls and their behaviour, including deserializing the rules from a csv."><title>chronobot::chrono::dice - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="chronobot" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07) (built from a source tarball)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module dice</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../chronobot/index.html">chronobot</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module dice</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#statics" title="Statics">Statics</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In chronobot::<wbr>chrono</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">chronobot</a>::<wbr><a href="../index.html">chrono</a></div><h1>Module <span>dice</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/chronobot/chrono/dice.rs.html#1-399">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This module govorns dice-rolls and their behaviour,
+including deserializing the rules from a csv.</p>
+<p>The rules are read from <code>&lt;bin-dir&gt;/tables/csv/dice.csv</code>,
+and must be in the following format:</p>
+<p>| Name (String) | Number of Sides (Positive Integer) | Associated Color (String) | Results |</p>
+<p>Here’s an example row:</p>
+<div class="example-wrap"><pre class="language-csv"><code>Advantage,6,Blue,//S/SO/OO/O</code></pre></div>
+<p>This will be deserialized using <a href="https://doc.rust-lang.org/1.91.1/core/str/traits/trait.FromStr.html" title="trait core::str::traits::FromStr"><code>std::str::FromStr</code></a> and <a href="https://doc.rust-lang.org/1.91.1/core/convert/trait.From.html" title="trait core::convert::From"><code>From&lt;char&gt;</code></a>,
+into a list of <a href="struct.DiceRollTableItem.html" title="struct chronobot::chrono::dice::DiceRollTableItem"><code>DiceRollTableItem</code></a>.</p>
+<p>An entry for “Results” is a sequence of outcomes delimited by a <code>/</code>
+character, with each character representing a score:
+| Character | Meaning |
+|   | Blank |
+| B | Blank |
+| S | Success |
+| F | Failure |
+| O | Opportunity |
+| T | Threat |
+| * | Triumph |
+| X | Despair |</p>
+<p>NOTE:   “blank” can be denoted either by a lack of any characters,
+or by a single “B” character</p>
+<p>The number of items delimited by the <code>/</code> character MUST match the value
+provided for the “Number of Sides” field.</p>
+<p>For example, the current “advantage” roll is defined as</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>blank | blank | green | green blue | blue blue | blue</code></pre></div>
+<p>So the corresponding csv entry would be <code>//S/SO/OO/O</code>.</p>
+<p>After all entries have been read from the CSV, they are collected into
+<a href="static.ROLL_TABLES.html" title="static chronobot::chrono::dice::ROLL_TABLES"><code>ROLL_TABLES</code></a></p>
+<p>For convenience, the <a href="enum.RollAxes.html" title="enum chronobot::chrono::dice::RollAxes"><code>RollAxes</code></a> can be added together to evaluate the
+total outcome.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>a = RollAxes::PassFail{ outcome: <span class="bool-val">true</span>, outstanding: <span class="bool-val">true </span>};
+<span class="kw">let </span>b = RollAxes::PassFail{ outcome: <span class="bool-val">false</span>, outstanding: <span class="bool-val">false </span>};
+
+<span class="comment">// DiceRollResult {
+//     passfail:  0,
+//     blank:     0,
+//     luck:      0,
+//     triumph:   1,
+//     despair:   0,
+// }
+</span><span class="kw">let </span>result: DiceRollResult = <span class="kw-2">&amp;</span>a + <span class="kw-2">&amp;</span>b;</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.DiceRollResult.html" title="struct chronobot::chrono::dice::DiceRollResult">Dice<wbr>Roll<wbr>Result</a></dt><dt><a class="struct" href="struct.DiceRollTableItem.html" title="struct chronobot::chrono::dice::DiceRollTableItem">Dice<wbr>Roll<wbr>Table<wbr>Item</a></dt><dt><a class="struct" href="struct.IoError.html" title="struct chronobot::chrono::dice::IoError">IoError</a></dt><dt><a class="struct" href="struct.RollAxesVec.html" title="struct chronobot::chrono::dice::RollAxesVec">Roll<wbr>Axes<wbr>Vec</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.RollAxes.html" title="enum chronobot::chrono::dice::RollAxes">Roll<wbr>Axes</a></dt><dt><a class="enum" href="enum.RollError.html" title="enum chronobot::chrono::dice::RollError">Roll<wbr>Error</a></dt></dl><h2 id="statics" class="section-header">Statics<a href="#statics" class="anchor">§</a></h2><dl class="item-table"><dt><a class="static" href="static.ROLL_TABLES.html" title="static chronobot::chrono::dice::ROLL_TABLES">ROLL_<wbr>TABLES</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.read_dice_table.html" title="fn chronobot::chrono::dice::read_dice_table">read_<wbr>dice_<wbr>table</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.roll_dice.html" title="fn chronobot::chrono::dice::roll_dice">roll_<wbr>dice</a></dt></dl></section></div></main></body></html>

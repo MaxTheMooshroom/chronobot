@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["chronobot",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.AddAssign.html\" title=\"trait core::ops::arith::AddAssign\">AddAssign</a>&lt;<a class=\"enum\" href=\"chronobot/chrono/dice/enum.RollAxes.html\" title=\"enum chronobot::chrono::dice::RollAxes\">RollAxes</a>&gt; for <a class=\"struct\" href=\"chronobot/chrono/dice/struct.DiceRollResult.html\" title=\"struct chronobot::chrono::dice::DiceRollResult\">DiceRollResult</a>"],["impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.AddAssign.html\" title=\"trait core::ops::arith::AddAssign\">AddAssign</a>&lt;&amp;'a <a class=\"enum\" href=\"chronobot/chrono/dice/enum.RollAxes.html\" title=\"enum chronobot::chrono::dice::RollAxes\">RollAxes</a>&gt; for <a class=\"struct\" href=\"chronobot/chrono/dice/struct.DiceRollResult.html\" title=\"struct chronobot::chrono::dice::DiceRollResult\">DiceRollResult</a>"],["impl&lt;B&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.AddAssign.html\" title=\"trait core::ops::arith::AddAssign\">AddAssign</a>&lt;B&gt; for <a class=\"struct\" href=\"chronobot/chrono/dice/struct.DiceRollResult.html\" title=\"struct chronobot::chrono::dice::DiceRollResult\">DiceRollResult</a><div class=\"where\">where\n    B: <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/borrow/trait.Borrow.html\" title=\"trait core::borrow::Borrow\">Borrow</a>&lt;<a class=\"struct\" href=\"chronobot/chrono/dice/struct.DiceRollResult.html\" title=\"struct chronobot::chrono::dice::DiceRollResult\">DiceRollResult</a>&gt;,</div>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1632]}
