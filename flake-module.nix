@@ -22,7 +22,7 @@ in
         pname = crate.pname;
       in {
         packages = {
-          default = pkgs.hello;
+          default = self'.packages.${pname};
           ${pname} = crate;
 
           noHash =
