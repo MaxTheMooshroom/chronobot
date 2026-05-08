@@ -1,1 +1,0 @@
-rd_("CkA program for running games of chronomutants in various \xe2\x80\xa6CgThis module govorns dice-rolls and their behaviour, \xe2\x80\xa6AoReturns the argument unchanged.000000BaCalls <code>U::from(self)</code>.000000")

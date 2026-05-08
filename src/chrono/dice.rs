@@ -2,21 +2,25 @@
 //! including deserializing the rules from a csv.
 //!
 //! The rules are read from `<bin-dir>/tables/csv/dice.csv`,
-//! and must be in the following format:
+//! and must be in the following format (with an example row):
 //!
 //! | Name (String) | Number of Sides (Positive Integer) | Associated Color (String) | Results |
+//! | ------------- | ---------------------------------- | ------------------------- | ------- |
+//! | `Advantage` | `6` | `Blue` | `B/B/S/SO/OO/O` |
+//!
 //!
 //! Here's an example row:
 //! ```csv
 //! Advantage,6,Blue,//S/SO/OO/O
 //! ```
 //!
-//! This will be deserialized by the [`csv`] crate, in combination with
-//! [`deserialize_rollaxes`], into a list of [`DiceRollTableItem`].
+//! This will be deserialized using [`std::str::FromStr`] and [`From<char>`],
+//! into a list of [`DiceRollTableItem`].
 //!
 //! An entry for "Results" is a sequence of outcomes delimited by a `/`
 //! character, with each character representing a score:
 //! | Character | Meaning |
+//! | --------- | ------- |
 //! |   | Blank |
 //! | B | Blank |
 //! | S | Success |
@@ -125,6 +129,7 @@ pub fn roll_dice(pool: &Vec<(String, u8)>) -> DiceRollResult {
         result += &ROLL_TABLES[&die.0].roll(die.1);
     }
 
+    if result.null() { result.blank = 1; }
     result
 }
 
@@ -166,6 +171,16 @@ fn read_dice_table() -> HashMap<String, DiceRollTableItem> {
     }
 
     table_entries
+}
+
+impl DiceRollResult {
+    fn null(&self) -> bool {
+        self.passfail   == 0
+        && self.blank   == 0
+        && self.luck    == 0
+        && self.triumph == 0
+        && self.despair == 0
+    }
 }
 
 impl DiceRollTableItem {
@@ -264,6 +279,8 @@ impl<'a> std::ops::AddAssign<&'a RollAxes> for DiceRollResult {
 
             RollAxes::OppThreat(ot) => self.luck += *ot as i8 * 2 - 1,
         }
+
+        if self.null() { self.blank = 1; }
     }
 }
 
@@ -281,6 +298,8 @@ where
         self.luck += rhs.luck;
         self.triumph += rhs.triumph;
         self.despair += rhs.despair;
+
+        if self.null() { self.blank = 1; }
     }
 }
 
