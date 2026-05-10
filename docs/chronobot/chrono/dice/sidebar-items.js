@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["RollAxes","RollError"],"fn":["read_dice_table","roll_dice"],"static":["ROLL_TABLES"],"struct":["DiceRollResult","DiceRollTableItem","IoError","RollAxesVec"]};
+window.SIDEBAR_ITEMS = {"enum":["RollAxes","RollError"],"fn":["colors_to_names","read_dice_table","roll_dice"],"static":["ROLL_TABLES"],"struct":["DiceRollResult","DiceRollTableItem","IoError","RollAxesVec"]};

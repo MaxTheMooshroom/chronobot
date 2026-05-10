@@ -85,6 +85,9 @@ pub enum RollError {
 
     ValidationError(String),
 
+    UnknownTableName(String),
+    UnknownTableColor(String),
+
     Io(IoError),
 }
 
@@ -121,16 +124,29 @@ pub struct DiceRollResult {
     pub despair:    u8,
 }
 
-pub fn roll_dice(pool: &Vec<(String, u8)>) -> DiceRollResult {
-    let mut result = DiceRollResult::default();
+pub fn roll_dice(pools: &Vec<(&str, u8)>) -> Result<DiceRollResult, RollError> {
+    let mut roll_result = DiceRollResult::default();
 
-    for die in pool {
-        assert!(ROLL_TABLES.contains_key(&die.0));
-        result += &ROLL_TABLES[&die.0].roll(die.1);
+    for &(color, count) in pools.iter() {
+        let tbl = ROLL_TABLES.get(color)
+            .ok_or_else(|| RollError::UnknownTableColor(color.to_string()))?;
+
+        roll_result += tbl.roll(count);
     }
 
-    if result.null() { result.blank = 1; }
-    result
+    Ok(roll_result)
+}
+
+pub fn colors_to_names(pools: &Vec<(&str, u8)>)
+    -> Result<Vec<(&'static str, u8)>, RollError>
+{
+    pools.iter().map(
+        |&(c, n)| {
+            ROLL_TABLES.get(c).map(|tbl| ((&tbl.name) as &str, n))
+                .ok_or_else(|| RollError::UnknownTableColor(c.to_string()))
+        }
+    )
+    .collect::<Result<Vec<(&'static str, u8)>, RollError>>()
 }
 
 fn read_dice_table() -> HashMap<String, DiceRollTableItem> {
@@ -167,7 +183,7 @@ fn read_dice_table() -> HashMap<String, DiceRollTableItem> {
             Err(e) => panic!("Failed to deserialize a line: {}", e),
         };
 
-        table_entries.insert(entry.name.clone(), entry);
+        table_entries.insert(entry.color.to_lowercase(), entry);
     }
 
     table_entries
@@ -223,6 +239,9 @@ impl std::fmt::Display for RollError {
                 => f.write_str(content),
 
             ValidationError(what) => f.write_str(what),
+
+            UnknownTableColor(c) => write!(f, "Unknown table color '{c}'"),
+            UnknownTableName(n) => write!(f, "Unknown table name: '{n}'"),
 
             Io(e) => e.fmt(f),
         }
@@ -408,12 +427,13 @@ mod tests {
     #[test]
     fn roll0() {
         let empty = roll_dice(&vec![]);
+        assert!(empty.null());
+    }
 
-        assert!(empty.passfail == 0);
-        assert!(empty.blank == 0);
-        assert!(empty.luck == 0);
-        assert!(empty.triumph == 0);
-        assert!(empty.despair == 0);
+    #[test]
+    fn roll1() {
+        let result = roll_dice(&vec![("Advantage".into(), 1)]);
+        assert!(!result.null());
     }
 }
 

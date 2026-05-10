@@ -22,7 +22,7 @@
 
         src = self.outPath;
 
-        cargoHash = "sha256-vPmrNdU4DXC1fxsmKYRQsFtfOifkEmYg2xV1EETOK1U=";
+        cargoHash = "sha256-KCIL9bZeZosII9KrqyPXINlBKp5smTIEqbs67bLxFxE=";
 
         meta = {
           description = "Discord bot for running chronomutants.";

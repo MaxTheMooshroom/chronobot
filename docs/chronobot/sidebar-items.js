@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"mod":["bot","chrono","cli","env"]};
+window.SIDEBAR_ITEMS = {"constant":["REQUIRED_ENV_VARS"],"fn":["main","test"],"mod":["bot","chrono","cli","env","log"]};

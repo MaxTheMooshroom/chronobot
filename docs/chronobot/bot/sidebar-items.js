@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {};
+window.SIDEBAR_ITEMS = {"struct":["BotState","BotStateRaw","CommandContext","CommandSet"],"type":["Command","CommandFuture","CommandPrefix"]};

@@ -12,10 +12,15 @@
 
 [dependencies]
   anyhow = "1.0.102"
+chrono = "0.4.44"
   clap = { version = "4.6.1", features = ["derive"] }
+derive_more = { version = "2.1.1", features = ["deref"] }
   dotenvy = "0.15.7"
+futures = "0.3.32"
   phf = "0.13.1"
   rand = "0.10.1"
+serenity = { version = "0.12.5", features = ["chrono", "client"] }
+  tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
   criterion = "0.8.2"

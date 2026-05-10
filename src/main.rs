@@ -1,17 +1,35 @@
+#![allow(unused)]
+//! TODO:
+
 mod bot;
 mod chrono;
 mod cli;
 mod env;
+mod log;
+
+use serenity::all::{Context, Message};
+
+use std::sync::Arc;
 
 use cli::Cli;
 
 // (variable name, requirement reason)
-// const REQUIRED_ENV_VARS: [(&str, &str); 1] = [
-//     ("DISCORD_AUTH_TOKEN", "Connecting to discord")
-// ];
+const REQUIRED_ENV_VARS: [(&str, &str); 1] = [
+    ("DISCORD_AUTH_TOKEN", "Connecting to discord"),
+];
 
-fn main() -> anyhow::Result<()> {
+fn test(state: bot::BotState, ctx: Arc<bot::CommandContext>) -> bot::CommandFuture<()> {
+    Box::pin(async move {
+        state.info("test").await;
+        ctx.msg.channel_id.say(&ctx.ctx, "test").await.unwrap();
+    })
+}
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let _ = Cli::parse();
+
+    log::init()?;
 
     if env::load().is_err() {
         println!("Failed to read `.env` file.");
@@ -20,30 +38,30 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let read_guard = env::read()?;
-    let len: usize = read_guard.iter().fold(0, |len, (k, v)| {
-        len + k.len() + " = ".len() + v.len() + '\n'.len_utf8()
-    });
-    let s = read_guard.iter().fold(
-        String::with_capacity(len),
-        |mut s: String, (k, v)| {
-            s.push_str(k);
-            s.push_str(" = ");
-            s.push_str(v);
-            s.push('\n');
-            s
+    let auth: String = {
+        let read_guard = env::read()?;
+
+        for (var, reason) in REQUIRED_ENV_VARS {
+            if !read_guard.contains_key(var) {
+                println!("Missing environment variable '{}'; Reason needed: {}", var, reason);
+                return Ok(());
+            }
         }
-    );
 
-    assert!(s.len() == len);
+        read_guard.get("DISCORD_AUTH_TOKEN").unwrap().clone()
+    };
 
-    print!("{}", s);
+    // println!("{:#?}", chrono::dice::roll_dice(&vec![("Future Tech".into(), 17)]));
 
-    for (key, value) in chrono::dice::ROLL_TABLES.iter() {
-        println!("{}: {:#?}", key, value);
-    }
+    let cmdset = bot::CommandSet::new("/")
+        .add_command("test", test)
+        .add_command("roll", chrono::roll);
 
-    println!("{:?}", chrono::dice::roll_dice(&vec![]));
+    let mut bot = bot::BotState::new(auth).await;
+    bot.add_command_set(cmdset).await;
+    bot.run().await;
 
-    Ok(())
+    futures::future::pending::<()>().await;
+
+    unreachable!()
 }
