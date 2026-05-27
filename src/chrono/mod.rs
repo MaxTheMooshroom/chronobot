@@ -1,11 +1,24 @@
-pub mod dice;
+pub(crate) mod dice;
+pub(crate) mod types;
 
 use std::sync::Arc;
 
 use serenity::all::{CreateEmbed, CreateEmbedFooter, CreateMessage};
 
+use std::sync::LazyLock;
+
 use crate::bot::{BotState, CommandContext, CommandFuture};
 use crate::log::LogContext;
+
+// #[derive(Clone, Debug)]
+// pub struct Stat(usize);
+//
+// #[derive(Clone, Debug)]
+// pub struct StatModifier(Stat, isize);
+//
+// static STAT_TYPES: LazyLock<&[String]> = LazyLock::new(|| {
+//     todo!()
+// });
 
 pub fn roll(bs: BotState, ctx: Arc<CommandContext>) -> CommandFuture<()> {
     Box::pin(async move {
@@ -68,4 +81,12 @@ pub fn roll(bs: BotState, ctx: Arc<CommandContext>) -> CommandFuture<()> {
         };
     })
 }
+
+// impl std::ops::Deref for Stat {
+//     type Target = str;
+//
+//     fn deref(&self) -> &Self::Target {
+//         crate::tables::STAT_TYPES.get(self.0).unwrap()
+//     }
+// }
 

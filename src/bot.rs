@@ -1,6 +1,6 @@
 use serenity::{Client, async_trait};
 use serenity::all::{Context, EventHandler, GatewayIntents, Message, Ready};
-use tokio::sync::RwLock;
+use tokio::sync::{OnceCell, RwLock};
 
 use std::collections::HashMap;
 use std::future::Future;
@@ -26,6 +26,8 @@ pub struct CommandSet {
 
 pub struct BotStateRaw {
     auth: String,
+    bot_info: OnceCell<Ready>,
+    api_handle: OnceCell<Context>,
     command_sets: HashMap<CommandPrefix, CommandSet<>>,
 }
 
@@ -45,6 +47,8 @@ impl BotState {
         Self(
             Arc::new(RwLock::new(BotStateRaw {
                 auth,
+                bot_info: OnceCell::new(),
+                api_handle: OnceCell::new(),
                 command_sets: HashMap::new(),
             })),
             crate::log::LogContext::new(&["DISCORD"])
@@ -68,6 +72,8 @@ impl BotState {
 
         self.1.log(LogType::Info, "Client created, starting bot...").await.unwrap();
         client.start().await.expect("Bot error occurred");
+
+        self.init_sigterm_handler();
     }
 
     pub async fn info<S: AsRef<str>>(&self, s: S) {
@@ -84,6 +90,16 @@ impl BotState {
 
     pub async fn error<S: AsRef<str>>(&self, s: S) {
         self.1.log(LogType::Error, s).await.unwrap()
+    }
+
+    fn init_sigterm_handler(&self) {
+        // let (sender, receiver) = tokio::sync::oneshot::channel::<()>();
+        //
+        // let this = self.clone();
+        // tokio::spawn(async move {
+        //     this.info("CTRL+C Received, shutting down...");
+        //     this.get().await.api_handle.get().unwrap().invisible();
+        // });
     }
 }
 
@@ -144,12 +160,18 @@ impl EventHandler for BotState {
         }
     }
 
-    async fn ready(&self, _: Context, bot_info: Ready) {
+    async fn ready(&self, ctx: Context, bot_info: Ready) {
         self.info("Ready!").await;
 
         self.info(format!("API Version: {}", bot_info.version)).await;
         self.info(format!("Bot name: {}", bot_info.user.display_name())).await;
         self.info(format!("# of guilds: {}", bot_info.guilds.len())).await;
+
+        {
+            let handle = self.get().await;
+            handle.bot_info.set(bot_info).unwrap();
+            handle.api_handle.set(ctx).unwrap();
+        }
     }
 }
 unsafe impl Send for BotState {}

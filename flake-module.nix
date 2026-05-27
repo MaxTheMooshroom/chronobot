@@ -7,18 +7,18 @@ let
 in
 {
   imports = [
-    { options = {
-        rustCrate = mkOption {
-          type = mlib.types.function;
-        };
+    {
+      options.rustCrate = mkOption {
+        type = mlib.types.function;
       };
     }
   ];
 
   config = {
-    perSystem = { self', pkgs, ... }:
+    perSystem = { system, self', pkgs, ... }:
       let
-        crate = pkgs.rustPlatform.buildRustPackage options.rustCrate.value;
+        rustPlatform = pkgs.rustPlatform;
+        crate = rustPlatform.buildRustPackage options.rustCrate.value;
         pname = crate.pname;
       in {
         packages = {

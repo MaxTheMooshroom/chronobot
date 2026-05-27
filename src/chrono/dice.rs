@@ -427,13 +427,15 @@ mod tests {
     #[test]
     fn roll0() {
         let empty = roll_dice(&vec![]);
-        assert!(empty.null());
+        assert!(empty.is_ok());
+        assert!(empty.unwrap().null());
     }
 
     #[test]
     fn roll1() {
-        let result = roll_dice(&vec![("Advantage".into(), 1)]);
-        assert!(!result.null());
+        let result = roll_dice(&vec![("red", 1)]);
+        assert!(result.is_ok());
+        assert!(!result.unwrap().null());
     }
 }
 

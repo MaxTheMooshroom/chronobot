@@ -16,30 +16,35 @@
 
       imports = [ (import inputs.flake-module) ];
 
-      rustCrate = (pkg: {
-        pname = "chronobot";
-        version = "0.1.0";
+      rustCrate =
+        crate:
+        {
+          pname = "chronobot";
+          version = "0.1.0";
 
-        src = self.outPath;
+          src = self.outPath;
 
-        cargoHash = "sha256-KCIL9bZeZosII9KrqyPXINlBKp5smTIEqbs67bLxFxE=";
+          cargoHash = "sha256-mu2nYX38M9QcT4JCr2oVJeeLCpB3hbK2k+u/NsYM/eA=";
 
-        meta = {
-          description = "Discord bot for running chronomutants.";
-          homepage = "https://github.com/MaxTheMooshroom/chronobot";
-          # license = lib.licenses. # TODO:
+          meta = {
+            description = "Discord bot for running chronomutants.";
+            homepage = "https://github.com/MaxTheMooshroom/chronobot";
+            license = lib.licenses.mit;
+          };
         };
-      });
 
-      perSystem = { self', pkgs, ... }: {
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            rustc
-            cargo
-            clippy
-            rustfmt
-          ];
-        };
+      perSystem =
+        { system, self', pkgs, ... }:
+        {
+          devShells.default = pkgs.mkShell {
+            packages = with pkgs; [
+              # rustup
+              cargo
+              # rustc
+              clippy
+              rustfmt
+            ];
+          };
       };
     });
 }
