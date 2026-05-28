@@ -17,8 +17,6 @@
     inputs.mlib.lib.mkFlake { inherit inputs; } (
       { config, lib, mlib, ... }:
       {
-        flake.my-config = config;
-
         systems = lib.systems.flakeExposed;
 
         imports = [ (import inputs.flake-module) ];
