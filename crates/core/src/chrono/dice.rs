@@ -422,20 +422,18 @@ impl std::str::FromStr for RollAxesVec {
 
 #[cfg(test)]
 mod tests {
-    use super::roll_dice;
+    use super::*;
 
     #[test]
     fn roll0() {
         let empty = roll_dice(&vec![]);
-        assert!(empty.is_ok());
-        assert!(empty.unwrap().null());
+        assert!(empty.is_ok_and(|x| x.null()));
     }
 
     #[test]
     fn roll1() {
         let result = roll_dice(&vec![("red", 1)]);
-        assert!(result.is_ok());
-        assert!(!result.unwrap().null());
+        assert!(result.is_ok_and(|x| !x.null()));
     }
 }
 
