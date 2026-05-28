@@ -1,7 +1,9 @@
-
 use anyhow::{anyhow, Result};
+use clap::Subcommand;
 
 use std::path::{PathBuf, Path};
+
+pub trait SubcommandExecutor {}
 
 pub fn exe_dir() -> Result<PathBuf> {
     std::env::current_exe()

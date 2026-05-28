@@ -10,7 +10,13 @@ use std::sync::Arc;
 use crate::log::LogType;
 
 pub type CommandFuture<T> = Pin<Box<dyn Future<Output = T> + Send>>;
-pub type Command = fn(BotState, Arc<CommandContext>) -> CommandFuture<()>;
+pub type CommandAsync = fn(BotState, Arc<CommandContext>) -> CommandFuture<()>;
+pub type CommandSync = fn(BotState, Arc<CommandContext>);
+
+pub struct Command(Arc<CommandRaw>);
+pub type CommandRaw =
+    dyn Fn(BotState, Arc<CommandContext>) -> CommandFuture<()> + Send + Sync;
+
 pub type CommandPrefix = &'static str;
 
 pub struct CommandContext {
@@ -28,7 +34,7 @@ pub struct BotStateRaw {
     auth: String,
     bot_info: OnceCell<Ready>,
     api_handle: OnceCell<Context>,
-    command_sets: HashMap<CommandPrefix, CommandSet<>>,
+    command_sets: HashMap<CommandPrefix, CommandSet>,
 }
 
 #[derive(Clone)]
@@ -119,8 +125,8 @@ impl CommandSet {
         }
     }
 
-    pub fn add_command(mut self, name: &'static str, cmd: Command) -> Self {
-        self.commands.insert(name.into(), cmd);
+    pub fn add_command(mut self, name: &'static str, cmd: impl Into<Command>) -> Self {
+        self.commands.insert(name.into(), cmd.into());
         self
     }
 }
@@ -176,4 +182,36 @@ impl EventHandler for BotState {
 }
 unsafe impl Send for BotState {}
 unsafe impl Sync for BotState {}
+
+impl From<Arc<CommandRaw>> for Command {
+    fn from(other: Arc<CommandRaw>) -> Self {
+        Self(other)
+    }
+}
+
+impl From<CommandAsync> for Command {
+    fn from(other: CommandAsync) -> Self {
+        Self(Arc::new(other))
+    }
+}
+
+impl From<CommandSync> for Command {
+    fn from(other: CommandSync) -> Self {
+        let inner: Arc<CommandRaw> = Arc::new(move |state, ctx| {
+            Box::pin(async move {
+                other(state, ctx)
+            })
+        });
+
+        Self(inner)
+    }
+}
+
+impl std::ops::Deref for Command {
+    type Target = CommandRaw;
+
+    fn deref(&self) -> &Self::Target {
+       &*self.0
+    }
+}
 
