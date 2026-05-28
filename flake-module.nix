@@ -10,42 +10,32 @@ let
   mkRustPlatform = options.rust.platformResolver.value;
   crates = options.rust.crates;
 
-  mkDerivation = drv: pkgs: (mkRustPlatform pkgs).buildRustPackage drv;
+  buildRustPackage' = pkgs: (mkRustPlatform pkgs).buildRustPackage;
 
   profileToPackageResolver =
     name: profile:
     addErrorContext "While resolving rust profile ${name}"
-      (mkDerivation
-        (lib.composeManyExtensions
-          profile.enabledOverlays.value
-          profile.recipe.value
+      (lib.flip buildRustPackage'
+        (lib.extends
+          profile.enabledOverlays
+          profile.recipe
         )
       );
-
-  # profileToPackageResolver =
-  #   lib.const                   # discard name
-  #     (mkDerivation
-  #       (mlib.trivial.fanout
-  #         (mlib.turn lib.composeManyExtensions (getAttr "enabledOverlays"))
-  #         (getAttr "recipe")
-  #       )
-  #     );
 
   #? { <name> :: lambda } -> a -> { <name> :: (lambda a) }
   callAttrsWith =
     lib.flip (mlib.turn mapAttrs (mlib.turn lib.const mlib.swap));
 
-  mapPackages = callAttrsWith crates.packages.value;
+  mapPackages = callAttrsWith crates.__packages.value;
 in
 {
   imports = [];
 
   options.rust = {
     platformResolver = mkOption {
-      type = mkOption' mlib.types.function;
+      type = mlib.types.function;
 
       default = getAttr "rustPlatform";
-      apply = getAttr "resolver";
 
       description = ''
         A function that gets the derivation-builder for each crate
@@ -70,17 +60,10 @@ in
           };
         }
       );
-      apply = mlib.turn head attrValues;
+      apply = mapAttrs (lib.const mlib.turn head attrValues);
     };
 
-    crates.overlays = mkOption {
-      type = types.attrsOf mlib.types.function;
-      apply = attrValues;
-
-      default.noHash =
-        final: prev:
-        { name = "${prev.name}-noHash"; cargoHash = ""; };
-    };
+    crates.overlays = mkOption' (types.attrsOf mlib.types.function);
 
     crates.profiles = mkOption {
       type = types.lazyAttrsOf (
@@ -97,38 +80,46 @@ in
                     apply = lib.flip getAttr crates.recipes.value;
                   };
                 };
+                apply = mlib.turn head attrValues;
               };
 
               enabledOverlays = mkOption {
                 type = types.listOf (types.enum (attrNames crates.overlays.value));
                 default = [];
-                apply = getAttrs crates.overlays.value;
+                #? [<recipe name>] -> <joined-overlay>
+                apply =
+                  mlib.turn
+                    lib.composeManyExtensions
+                    (getAttrs crates.overlays.value);
               };
             };
           }
         )
       );
-
-      default = {
-        # noHash = {
-        #   recipe =
-        #     crates.profiles.value.${crates.defaultProfile.value}.recipe;
-        #   enabledOverlays = ["noHash"];
-        # };
-      };
-
-      # apply = ;
     };
 
-    crates.packages = mkOption {
+    crates.__packages = mkOption {
       internal = true;
       type = types.lazyAttrsOf (types.functionTo types.package);
       default = mapAttrs (profileToPackageResolver) crates.profiles.value;
-      # apply = x: x // { default = getAttr crates.defaultProfile.value x; };
+      apply = x: x // { default = getAttr crates.defaultProfile.value x; };
     };
   };
 
   config = {
+    rust.crates.overlays.noHash = final: prev: {
+      name = "${prev.name or prev.pname or "defaultPackage"}-noHash";
+      cargoHash = "";
+    };
+
+    rust.crates.profiles = {
+      noHash = {
+        recipe.fixed-point =
+          crates.profiles.value.${crates.defaultProfile.value}.recipe;
+        enabledOverlays = ["noHash"];
+      };
+    };
+
     perSystem =
       { system, self', pkgs, ... }:
       {

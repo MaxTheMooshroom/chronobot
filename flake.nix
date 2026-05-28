@@ -10,12 +10,15 @@
     flake-module = { flake = false; url = ./flake-module.nix; };
 
     mlib.url = "github:MaxTheMooshroom/mlib.nix";
+    mlib.inputs.flake-parts.follows = "flake-parts";
   };
 
   outputs = { self, flake-parts, ... }@inputs:
     flake-parts.lib.mkFlake { inherit inputs; specialArgs.mlib = inputs.mlib.lib; } (
-      { lib, ... }:
+      { config, lib, ... }:
       {
+        flake.my-config = config;
+
         systems = lib.systems.flakeExposed;
 
         imports = [
