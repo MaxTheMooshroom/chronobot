@@ -54,11 +54,11 @@
         "lib": "lib"
       },
       "locked": {
-        "lastModified": 1779805061,
-        "narHash": "sha256-oEUOEVG4OFc6WwotGjAoJHtIsRF700H2FQ6pZi+Gbro=",
+        "lastModified": 1780009683,
+        "narHash": "sha256-/kgJmcEcXXWwnTxeozLxuOagGwfKlfzEJqe4NGpZgN0=",
         "owner": "MaxTheMooshroom",
         "repo": "mlib.nix",
-        "rev": "bc130edecc37c02f96c1af15d352df4f5d8ae14f",
+        "rev": "afb1894a1936ef160b82b1b6b8b5ccec62f86351",
         "type": "github"
       },
       "original": {

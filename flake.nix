@@ -13,18 +13,15 @@
     mlib.inputs.flake-parts.follows = "flake-parts";
   };
 
-  outputs = { self, flake-parts, ... }@inputs:
-    flake-parts.lib.mkFlake { inherit inputs; specialArgs.mlib = inputs.mlib.lib; } (
-      { config, lib, ... }:
+  outputs = { self, ... }@inputs:
+    inputs.mlib.lib.mkFlake { inherit inputs; } (
+      { config, lib, mlib, ... }:
       {
         flake.my-config = config;
 
         systems = lib.systems.flakeExposed;
 
-        imports = [
-          inputs.mlib.flakeModules.perSystem-moduleArgs
-          (import inputs.flake-module)
-        ];
+        imports = [ (import inputs.flake-module) ];
 
         rust.crates = {
           defaultProfile = "chronobot";
