@@ -1,0 +1,10 @@
+[package]
+  name = "chrono-derive"
+  version.workspace = true
+  edition.workspace = true
+
+[dependencies]
+  proc-macro2 = "1.0.106"
+  syn = "2.0.117"
+  quote = "1.0.45"
+

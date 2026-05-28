@@ -1,28 +1,31 @@
-[package]
-  edition = "2024"
-  rust-version = "1.91.1"
+[workspace]
+  resolver = "3"
+  members = [
+      "crates/core",
+      "crates/derive",
+  ]
 
-  name = "chronobot"
-  version = "0.1.0"
-  description = "A program for running games of chronomutants in various settings."
+  [workspace.package]
+    edition = "2024"
+    rust-version = "1.91.1"
 
-  license = "MIT"
-  authors = [ "Maxine Zick <maxine@pnk.dev>" ]
-  repository = "https://github.com/MaxTheMooshroom/chronobot"
+    # name = "chronobot"
+    version = "0.1.0"
+    description = "A program for running games of chronomutants in various settings."
 
-[dependencies]
-  anyhow = "1.0.102"
-  chrono = "0.4.41"
-  clap = { version = "4.6.1", features = ["derive"] }
-  derive_more = { version = "2.1.1", features = ["deref"] }
-  dotenvy = "0.15.7"
-  futures = "0.3.32"
-  polars = "0.53.0"
-  rand = "0.10.1"
-  serenity = { version = "0.12.5", features = ["chrono", "client"] }
-  signal-hook = "0.4.4"
-  tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread", "signal"] }
+    license = "MIT"
+    authors = [ "Maxine Zick <maxine@pnk.dev>" ]
+    repository = "https://github.com/MaxTheMooshroom/chronobot"
 
-[dev-dependencies]
-  criterion = "0.8.2"
+  [workspace.dependencies]
+    chrono-derive.path = "crates/derive"
+    chronobot.path = "crates/core"
+
+    anyhow = "1.0.102"
+    clap = { version = "4.6.1", features = ["derive"] }
+    futures = "0.3.32"
+    serenity = { version = "0.12.5", features = ["chrono", "client"] }
+
+    # dev dependencies
+    criterion = "0.8.2"
 

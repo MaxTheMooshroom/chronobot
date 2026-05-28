@@ -1,3 +1,5 @@
+use clap::{Parser, Subcommand, ArgMatches};
+
 use crate::{bot, chrono, env};
 
 // (variable name, requirement reason)
@@ -5,18 +7,12 @@ const REQUIRED_ENV_VARS: [(&str, &str); 1] = [
     ("DISCORD_AUTH_TOKEN", "Connecting to discord"),
 ];
 
-fn make_command_set_from<C: clap::Parser>(
-    prefix: bot::CommandPrefix,
-    arg_parser: C
-) -> bot::CommandSet {
-    todo!()
-}
-
 async fn init_bot(mut bot: bot::BotState) -> bot::BotState {
     let cmdset = bot::CommandSet::new("/")
-        .add_command("roll", chrono::roll);
+        .add_command("roll", chrono::roll as bot::CommandAsync);
 
-    bot.add_command_set(cmdset).await;
+    // bot.add_command_set(make_command_set_from("/", ))
+    // bot.add_command_set(cmdset).await;
 
     bot
 }
