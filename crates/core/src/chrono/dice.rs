@@ -37,7 +37,7 @@
 //! provided for the "Number of Sides" field.
 //!
 //! For example, the current "advantage" roll is defined as
-//! ```
+//! ```text
 //! blank | blank | green | green blue | blue blue | blue
 //! ```
 //! So the corresponding csv entry would be `//S/SO/OO/O`.
@@ -47,18 +47,22 @@
 //!
 //! For convenience, the [`RollAxes`] can be added together to evaluate the
 //! total outcome.
-//! ```rust
+//! ```
+//! # use chronobot::chrono::dice::{DiceRollResult, RollAxes};
 //! let a = RollAxes::PassFail{ outcome: true, outstanding: true };
 //! let b = RollAxes::PassFail{ outcome: false, outstanding: false };
 //!
-//! // DiceRollResult {
-//! //     passfail:  0,
-//! //     blank:     0,
-//! //     luck:      0,
-//! //     triumph:   1,
-//! //     despair:   0,
-//! // }
+//! let expected = DiceRollResult {
+//!     passfail:  0,
+//!     blank:     0,
+//!     luck:      0,
+//!     triumph:   1,
+//!     despair:   0,
+//! };
+//!
 //! let result: DiceRollResult = &a + &b;
+//!
+//! assert_eq!(result, expected);
 //! ```
 //!
 
@@ -190,12 +194,16 @@ fn read_dice_table() -> HashMap<String, DiceRollTableItem> {
 }
 
 impl DiceRollResult {
+    const EMPTY: Self = Self{
+        passfail:   0,
+        blank:      0,
+        luck:       0,
+        triumph:    0,
+        despair:    0,
+    };
+
     fn null(&self) -> bool {
-        self.passfail   == 0
-        && self.blank   == 0
-        && self.luck    == 0
-        && self.triumph == 0
-        && self.despair == 0
+        *self == Self::EMPTY
     }
 }
 
@@ -321,6 +329,17 @@ where
         if self.null() { self.blank = 1; }
     }
 }
+
+impl std::cmp::PartialEq for DiceRollResult {
+    fn eq(&self, other: &Self) -> bool {
+        self.passfail == other.passfail
+            && self.blank == other.blank
+            && self.luck == other.luck
+            && self.triumph == other.triumph
+            && self.despair == other.despair
+    }
+}
+impl std::cmp::Eq for DiceRollResult {}
 
 impl<'a> From<&'a RollAxesVec> for DiceRollResult {
     fn from(v: &'a RollAxesVec) -> Self {

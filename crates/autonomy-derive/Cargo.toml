@@ -1,0 +1,26 @@
+[package]
+  name = "harmony-autonomy-derive"
+
+  version.workspace = true
+  description.workspace = true
+
+  edition.workspace = true
+  rust-version.workspace = true
+
+  license.workspace = true
+  authors.workspace = true
+  repository.workspace = true
+
+  meta.workspace = true
+
+[lib]
+  proc-macro = true
+
+[dependencies]
+  flux-rs.workspace = true
+
+  proc-macro2 = "1.0.106"
+  syn = "2.0.117"
+  quote = "1.0.45"
+  deluxe = "0.5.0"
+

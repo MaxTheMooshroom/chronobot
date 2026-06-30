@@ -1,0 +1,29 @@
+[package]
+  name = "harmony-autonomy"
+
+  version.workspace = true
+  description.workspace = true
+
+  edition.workspace = true
+  rust-version.workspace = true
+
+  license.workspace = true
+  authors.workspace = true
+  repository.workspace = true
+
+  meta.flux.enabled = true
+
+[features]
+  default = ["async", ]
+  async = ["dep:async-trait", ]
+
+[dependencies]
+  flux-rs.workspace = true
+
+  anyhow.workspace = true
+  clap.workspace = true
+
+  harmony-autonomy-derive.workspace = true
+
+  async-trait = { workspace = true, optional = true }
+

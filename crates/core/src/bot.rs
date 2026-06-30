@@ -31,7 +31,6 @@ pub struct CommandSet {
 }
 
 pub struct BotStateRaw {
-    auth: String,
     bot_info: OnceCell<Ready>,
     api_handle: OnceCell<Context>,
     command_sets: HashMap<CommandPrefix, CommandSet>,
@@ -49,10 +48,9 @@ impl BotState {
         self.write().await
     }
 
-    pub async fn new(auth: String) -> Self {
+    pub async fn new() -> Self {
         Self(
             Arc::new(RwLock::new(BotStateRaw {
-                auth,
                 bot_info: OnceCell::new(),
                 api_handle: OnceCell::new(),
                 command_sets: HashMap::new(),
@@ -65,14 +63,14 @@ impl BotState {
         self.get_mut().await.command_sets.insert(set.prefix, set);
     }
 
-    pub async fn run(&self) {
+    pub async fn run(&self, auth: impl AsRef<str>) {
         let intent = GatewayIntents::GUILD_MESSAGES
             | GatewayIntents::DIRECT_MESSAGES
             | GatewayIntents::MESSAGE_CONTENT;
 
         self.1.log(LogType::Info, "Creating client...").await.unwrap();
 
-        let mut client = Client::builder(&self.read().await.auth, intent)
+        let mut client = Client::builder(auth, intent)
             .event_handler(self.clone()).await
             .expect("Error acquiring client");
 

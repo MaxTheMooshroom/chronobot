@@ -1,4 +1,6 @@
+use anyhow::{anyhow, Result};
 use clap::{Parser, Subcommand, ArgMatches};
+use tokio::runtime::Runtime;
 
 use crate::{bot, chrono, env};
 
@@ -12,18 +14,26 @@ async fn init_bot(mut bot: bot::BotState) -> bot::BotState {
         .add_command("roll", chrono::roll as bot::CommandAsync);
 
     // bot.add_command_set(make_command_set_from("/", ))
-    // bot.add_command_set(cmdset).await;
+    bot.add_command_set(cmdset).await;
 
     bot
 }
 
-async fn discord_bot_main() -> anyhow::Result<()> {
-    if env::load().is_err() {
-        println!("Failed to read `.env` file.");
-        println!("This is required to connect to discord.");
-        println!("\nAborting...");
+async fn discord_bot_main_async(auth: impl AsRef<str>) -> Result<!> {
+    let bot = init_bot(bot::BotState::new().await).await;
+    bot.run(auth).await;
 
-        return Ok(());
+    futures::future::pending::<!>().await;
+}
+
+pub fn discord_bot_main() -> Result<!> {
+    if env::load().is_err() {
+        return Err(anyhow!(concat!(
+            "Failed to read `.env` file.\n",
+            "The `.env` file is used to get the auth token for the Discord API.\n",
+            "\n",
+            "Aborting...",
+        )));
     }
 
     let auth: String = {
@@ -31,18 +41,14 @@ async fn discord_bot_main() -> anyhow::Result<()> {
 
         for (var, reason) in REQUIRED_ENV_VARS {
             if !read_guard.contains_key(var) {
-                println!("Missing environment variable '{}'; Reason needed: {}", var, reason);
-                return Ok(());
+                return Err(anyhow!("Missing environment variable '{}'; Reason needed: {}", var, reason));
             }
         }
 
         read_guard.get("DISCORD_AUTH_TOKEN").unwrap().clone()
     };
 
-    let mut bot = init_bot(bot::BotState::new(auth).await).await;
-    bot.run().await;
-
-    futures::future::pending::<()>().await;
+    Runtime::new()?.block_on(discord_bot_main_async(auth));
 
     unreachable!()
 }

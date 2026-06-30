@@ -1,18 +1,9 @@
 
-use anyhow::anyhow;
-use clap::{CommandFactory, Parser, Subcommand};
-
-/// Performs rolls of predefined groups of dice.
-///
-/// Use `roll <group> --help` for more information.
-// #[derive(Parser, Debug)]
-// pub struct CommandRoll {
-//     #[command(subcommand)]
-//     pub roll: CommandRollType,
-// }
+use anyhow::{anyhow, Result};
+use clap::{Parser, Subcommand};
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum CommandRoll {
+pub enum SubcommandRoll {
     /// Rolls 1 Mutant Class, 2 of its subclasses, and
     /// (if applicable) a subclass `Variant`. See `whatis mutant-class`
     /// for more info.
@@ -54,6 +45,17 @@ pub enum CommandRollResult {
 
         mutations: Vec<crate::chrono::types::MutationInstance>,
     },
+}
+
+impl SubcommandRoll {
+    pub fn do_rolls(&self) -> Result<()> {
+        use SubcommandRoll::*;
+
+        match self {
+            DicePools{ pools } => Ok(()),
+            _ => todo!(),
+        }
+    }
 }
 
 impl std::str::FromStr for DicePool {

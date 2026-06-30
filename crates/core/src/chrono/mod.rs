@@ -1,4 +1,4 @@
-pub(crate) mod dice;
+pub mod dice;
 pub(crate) mod types;
 
 use std::sync::Arc;

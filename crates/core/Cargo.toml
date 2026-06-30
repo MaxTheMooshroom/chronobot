@@ -1,14 +1,17 @@
 [package]
   name = "chronobot"
+
   version.workspace = true
   description.workspace = true
 
-  edition = "2024"
+  edition.workspace = true
   rust-version.workspace = true
 
   license.workspace = true
   authors.workspace = true
   repository.workspace = true
+
+  meta.workspace = true
 
 [dependencies]
   anyhow.workspace = true
@@ -16,7 +19,7 @@
   futures.workspace = true
   serenity.workspace = true
 
-  chrono-derive.workspace = true
+  harmony-autonomy.workspace = true
 
   chrono = "0.4.41"
   derive_more = { version = "2.1.1", features = ["deref"] }
@@ -24,7 +27,7 @@
   polars = "0.53.0"
   rand = "0.10.1"
   signal-hook = "0.4.4"
-  tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread", "signal"] }
+  tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread", "signal", "rt"] }
 
 [dev-dependencies]
   criterion.workspace = true
