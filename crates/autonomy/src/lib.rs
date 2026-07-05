@@ -1,5 +1,4 @@
 #![feature(associated_type_defaults)]
-#![feature(auto_traits)]
 #![feature(never_type)]
 
 mod bot;
