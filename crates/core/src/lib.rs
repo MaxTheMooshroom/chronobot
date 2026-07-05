@@ -59,11 +59,10 @@ pub struct ChronobotArgs {
 //     std::process::exit(0)
 // }
 
-impl CommandSet for Chronobot {
-    type ExtraContext = ();
+impl CommandSet<ChronobotArgs> for Chronobot {
     type ReturnType = !;
 
-    fn dispatch(self, ec: Self::ExtraContext) -> Result<Self::ReturnType> {
+    fn dispatch(&self, ec: &ChronobotArgs) -> Result<Self::ReturnType> {
         match self {
             // Chronobot::Roll { inner } => roll_main(inner),
             Chronobot::Roll { inner } => {
@@ -79,16 +78,8 @@ impl CommandSet for Chronobot {
 impl CommandContext for ChronobotArgs {
     type Commands = Chronobot;
 
-    fn commands(self) -> Self::Commands {
-        self.cmd
-    }
-}
-
-impl ChronobotArgs {
-    /// A convenience wrapper around [`ChronobotArgs`]' implementation of
-    /// [`CommandContext::execute`].
-    pub fn execute() -> Result<!> {
-        <Self as CommandContext>::execute(())
+    fn commands(&self) -> &Self::Commands {
+        &self.cmd
     }
 }
 

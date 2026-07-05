@@ -30,10 +30,8 @@ pub trait CommandDelegate {
 
 /// The various subcommands of a [`CommandContext`].
 ///
-/// This trait is only applicable to enum types that derive the
-/// [`Enum`] trait (eg. `#[derive(enum_trait::Enum, CommandSet)]`),
-/// and that implement the [`Subcommand`] trait, whether by deriving it
-/// or by manual implementation.
+/// This trait is only applicable to enum types that implement the
+/// [`Subcommand`] trait, whether by deriving it or by manual implementation.
 ///
 /// Each subcommand must have a delegate that this trait can dispatch to
 /// for executing it. This is done with the `#[dispatch()]` attribute, where
@@ -60,10 +58,9 @@ pub trait CommandDelegate {
 /// ```
 // pub trait CommandSet: Subcommand + Enum {
 pub trait CommandSet<Ctx: CommandContext>: Subcommand {
-    type ExtraContext = Ctx;
     type ReturnType = ();
 
-    fn dispatch(self, ec: Self::ExtraContext) -> Result<Self::ReturnType>;
+    fn dispatch(&self, args: &Ctx) -> Result<Self::ReturnType>;
 
     // #[cfg(feature = "async")]
     // fn dispatch_async(&self) -> Self::ReturnType;
@@ -79,38 +76,39 @@ pub trait CommandContext: Parser {
 
     type Commands: CommandSet<Self>;
 
-    fn commands(self) -> Self::Commands;
+    fn commands(&self) -> &Self::Commands;
+
+    fn dispatch(&self) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
+        self.commands().dispatch(self)
+    }
 
     fn execute_from_raw_unchecked(
         raw_input: impl Borrow<str>,
-        ctx: <Self::Commands as CommandSet<Self>>::ExtraContext,
     ) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
         let raw_input = raw_input.borrow();
         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 
-        Self::try_parse_from(input.split_whitespace())?.commands().dispatch(ctx)
+        Self::try_parse_from(input.split_whitespace())?.dispatch()
     }
 
     fn execute_from_raw(
         raw_input: impl Borrow<str>,
-        ctx: <Self::Commands as CommandSet<Self>>::ExtraContext,
     ) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
-        Self::try_parse_from(raw_input.borrow().split_whitespace())?.commands().dispatch(ctx)
+        Self::try_parse_from(raw_input.borrow().split_whitespace())?.dispatch()
     }
 
     fn execute_from<I, T>(
         args: I,
-        ctx: <Self::Commands as CommandSet<Self>>::ExtraContext,
     ) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        Self::try_parse_from(args)?.commands().dispatch(ctx)
+        Self::try_parse_from(args)?.dispatch()
     }
 
-    fn execute(ctx: <Self::Commands as CommandSet<Self>>::ExtraContext) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
-        Self::try_parse()?.commands().dispatch(ctx)
+    fn execute() -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
+        Self::try_parse()?.dispatch()
     }
 }
 
@@ -131,14 +129,14 @@ pub trait CommandContext: Parser {
 //         let raw_input = raw_input.borrow();
 //         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 //
-//         Self::parse_from(input.split_whitespace()).commands().dispatch(ctx)
+//         Self::parse_from(input.split_whitespace()).dispatch()
 //     }
 //
 //     async fn try_execute_from_raw_unchecked(raw_input: impl Borrow<str> + Send) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
 //         let raw_input = raw_input.borrow();
 //         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 //
-//         Ok(Self::try_parse_from(input.split_whitespace())?.commands().dispatch(ctx))
+//         Ok(Self::try_parse_from(input.split_whitespace())?.dispatch())
 //     }
 //
 //     async fn execute_from_raw(raw_input: impl Borrow<str> + Send) -> <Self::Commands as CommandSet<Self>>::ReturnType {
