@@ -198,28 +198,3 @@ pub trait CommandContext: Parser + NotEnum {
 //     }
 // }
 
-fn ping_delegate(ctx: (), args: ()) -> &'static str {
-    "pong"
-}
-
-fn fizz_delegate(ctx: (), args: (u8, usize)) -> &'static str {
-    "buzz"
-}
-
-#[derive(Enum, CommandSet)]
-#[cmdset(returns = &'static str, context = ())]
-enum CmdSet {
-    #[delegate(ping_delegate)]
-    Ping,
-
-    #[delegate(fizz_delegate)]
-    Fizz(u8, usize),
-}
-
-#[derive(Parser, CommandContext)]
-#[set_prefix("/")]
-struct CmdCtx {
-    #[command(subcommand)]
-    subcommands: CmdSet,
-}
-
