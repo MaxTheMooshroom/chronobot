@@ -36,7 +36,7 @@ pub trait CommandDelegate {
 /// or by manual implementation.
 ///
 /// Each subcommand must have a delegate that this trait can dispatch to
-/// for executing it. This is done with the `#[delegate()]` attribute, where
+/// for executing it. This is done with the `#[dispatch()]` attribute, where
 /// the argument is the name or path to a function that will receive the
 /// current [`CommandContext`].
 ///
@@ -85,50 +85,68 @@ pub trait CommandContext: Parser {
 
     fn commands(self) -> Self::Commands;
 
-    fn execute_from_raw_unchecked(raw_input: impl Borrow<str>) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+    fn execute_from_raw_unchecked(
+        raw_input: impl Borrow<str>,
+        ctx: <Self::Commands as CommandSet>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
         let raw_input = raw_input.borrow();
         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 
-        Self::parse_from(input.split_whitespace()).commands().delegate().execute()
+        Self::parse_from(input.split_whitespace()).commands().dispatch(ctx)
     }
 
-    fn try_execute_from_raw_unchecked(raw_input: impl Borrow<str>) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+    fn try_execute_from_raw_unchecked(
+        raw_input: impl Borrow<str>,
+        ctx: <Self::Commands as CommandSet>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
         let raw_input = raw_input.borrow();
         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 
-        Ok(Self::try_parse_from(input.split_whitespace())?.commands().delegate().execute())
+        Self::try_parse_from(input.split_whitespace())?.commands().dispatch(ctx)
     }
 
-    fn execute_from_raw(raw_input: impl Borrow<str>) -> <Self::Commands as CommandSet>::ReturnType {
-        Self::parse_from(raw_input.borrow().split_whitespace()).commands().delegate().execute()
+    fn execute_from_raw(
+        raw_input: impl Borrow<str>,
+        ctx: <Self::Commands as CommandSet>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+        Self::parse_from(raw_input.borrow().split_whitespace()).commands().dispatch(ctx)
     }
 
-    fn try_execute_from_raw(raw_input: impl Borrow<str>) -> Result<<Self::Commands as CommandSet>::ReturnType> {
-        Ok(Self::try_parse_from(raw_input.borrow().split_whitespace())?.commands().delegate().execute())
+    fn try_execute_from_raw(
+        raw_input: impl Borrow<str>,
+        ctx: <Self::Commands as CommandSet>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+        Self::try_parse_from(raw_input.borrow().split_whitespace())?.commands().dispatch(ctx)
     }
 
-    fn execute_from<I, T>(args: I) -> <Self::Commands as CommandSet>::ReturnType
+    fn execute_from<I, T>(
+        args: I,
+        ctx: <Self::Commands as CommandSet>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet>::ReturnType>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        Self::parse_from(args).commands().delegate().execute()
+        Self::parse_from(args).commands().dispatch(ctx)
     }
 
-    fn try_execute_from<I, T>(args: I) -> Result<<Self::Commands as CommandSet>::ReturnType>
+    fn try_execute_from<I, T>(
+        args: I,
+        ctx: <Self::Commands as CommandSet>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet>::ReturnType>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        Ok(Self::try_parse_from(args)?.commands().delegate().execute())
+        Self::try_parse_from(args)?.commands().dispatch(ctx)
     }
 
-    fn delegate() -> <Self::Commands as CommandSet>::ReturnType {
-        Self::parse().commands().delegate().execute()
+    fn dispatch(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+        Self::parse().commands().dispatch(ctx)
     }
 
-    fn try_dispatch() -> Result<<Self::Commands as CommandSet>::ReturnType> {
-        Ok(Self::try_parse()?.commands().delegate().execute())
+    fn try_dispatch(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+        Self::try_parse()?.commands().dispatch(ctx)
     }
 }
 
@@ -149,22 +167,22 @@ pub trait CommandContext: Parser {
 //         let raw_input = raw_input.borrow();
 //         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 //
-//         Self::parse_from(input.split_whitespace()).commands().delegate()
+//         Self::parse_from(input.split_whitespace()).commands().dispatch(ctx)
 //     }
 //
 //     async fn try_execute_from_raw_unchecked(raw_input: impl Borrow<str> + Send) -> Result<<Self::Commands as CommandSet>::ReturnType> {
 //         let raw_input = raw_input.borrow();
 //         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 //
-//         Ok(Self::try_parse_from(input.split_whitespace())?.commands().delegate())
+//         Ok(Self::try_parse_from(input.split_whitespace())?.commands().dispatch(ctx))
 //     }
 //
 //     async fn execute_from_raw(raw_input: impl Borrow<str> + Send) -> <Self::Commands as CommandSet>::ReturnType {
-//         Self::parse_from(raw_input.borrow().split_whitespace()).delegate().await
+//         Self::parse_from(raw_input.borrow().split_whitespace()).dispatch(ctx).await
 //     }
 //
 //     async fn try_execute_from_raw(raw_input: impl Borrow<str> + Send) -> Result<<Self::Commands as CommandSet>::ReturnType> {
-//         Ok(Self::try_parse_from(raw_input.borrow().split_whitespace())?.delegate().await)
+//         Ok(Self::try_parse_from(raw_input.borrow().split_whitespace())?.dispatch(ctx).await)
 //     }
 //
 //     async fn execute_from<I, T>(args: I) -> <Self::Commands as CommandSet>::ReturnType
@@ -176,7 +194,7 @@ pub trait CommandContext: Parser {
 //         // and no need for `Send`.
 //         T: Into<OsString> + Clone,
 //     {
-//         Self::parse_from(args).delegate().await
+//         Self::parse_from(args).dispatch(ctx).await
 //     }
 //
 //     async fn try_execute_from<I, T>(args: I) -> Result<<Self::Commands as CommandSet>::ReturnType>
@@ -188,15 +206,15 @@ pub trait CommandContext: Parser {
 //         // and no need for `Send`.
 //         T: Into<OsString> + Clone,
 //     {
-//         Ok(Self::try_parse_from(args)?.delegate().await)
+//         Ok(Self::try_parse_from(args)?.dispatch(ctx).await)
 //     }
 //
-//     async fn delegate() -> <Self::Commands as CommandSet>::ReturnType {
-//         Self::parse().delegate().await
+//     async fn dispatch() -> <Self::Commands as CommandSet>::ReturnType {
+//         Self::parse().dispatch(ctx).await
 //     }
 //
 //     async fn try_dispatch() -> Result<<Self::Commands as CommandSet>::ReturnType> {
-//         Ok(Self::try_parse()?.delegate().await)
+//         Ok(Self::try_parse()?.dispatch(ctx).await)
 //     }
 // }
 
