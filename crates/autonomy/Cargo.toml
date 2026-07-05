@@ -22,12 +22,12 @@
 
   anyhow.workspace = true
   clap.workspace = true
-  enum-trait.workspace = true
+  # enum-trait.workspace = true
 
   serenity.workspace = true
   tokio.workspace = true
 
-  harmony-autonomy-derive.workspace = true
+  # harmony-autonomy-derive.workspace = true
 
   async-trait = { workspace = true, optional = true }
 

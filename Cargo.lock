@@ -1245,9 +1245,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "clap",
- "enum-trait",
  "flux-rs",
- "harmony-autonomy-derive",
  "serenity",
  "tokio",
 ]

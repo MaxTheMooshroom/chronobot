@@ -2,13 +2,13 @@
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use enum_trait::Enum;
+// use enum_trait::{Enum, NotEnum};
 
 use std::borrow::Borrow;
 use std::ffi::OsString;
 use std::future::Future;
 
-pub use harmony_autonomy_derive::{CommandContext, CommandSet};
+// pub use harmony_autonomy_derive::{CommandContext, CommandSet};
 
 pub trait CommandDelegate {
     type ExtraContext = ();
@@ -48,9 +48,9 @@ pub trait CommandDelegate {
 /// For example:
 /// ```
 /// # use clap::{Parser, Subcommand};
-/// # use enum_trait::{Enum, NotEnum};
+/// # // use enum_trait::{Enum, NotEnum};
 /// # use harmony_autonomy::cmdset::{CommandContext, CommandDelegate, CommandSet};
-/// #[derive(Enum, Subcommand, CommandSet)]
+/// #[derive(Subcommand, CommandSet)]
 /// #[cmdset(returns = )]
 /// enum ExampleEnum {
 ///     #[delegate(func_a)]
@@ -58,7 +58,8 @@ pub trait CommandDelegate {
 ///     B(),
 /// }
 /// ```
-pub trait CommandSet: Subcommand + Enum {
+// pub trait CommandSet: Subcommand + Enum {
+pub trait CommandSet: Subcommand {
     type ExtraContext = ();
     type ReturnType = ();
 
@@ -72,7 +73,8 @@ pub trait CommandSet: Subcommand + Enum {
     // fn dispatch_async(&self) -> Self::ReturnType;
 }
 
-pub trait CommandContext: Parser + NotEnum {
+// pub trait CommandContext: Parser + NotEnum {
+pub trait CommandContext: Parser {
     /// The prefix to use for detecting commands. Defaults to `/`.
     ///
     /// Eg. <br />
