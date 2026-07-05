@@ -59,14 +59,10 @@ pub trait CommandDelegate {
 /// }
 /// ```
 // pub trait CommandSet: Subcommand + Enum {
-pub trait CommandSet: Subcommand {
-    type ExtraContext = ();
+pub trait CommandSet<Ctx: CommandContext>: Subcommand {
+    type ExtraContext = Ctx;
     type ReturnType = ();
 
-    // match self {
-    //     A(a, b) => delegate_a(ec, args),
-    //     ...
-    // }
     fn dispatch(self, ec: Self::ExtraContext) -> Result<Self::ReturnType>;
 
     // #[cfg(feature = "async")]
@@ -81,24 +77,14 @@ pub trait CommandContext: Parser {
     /// `/echo "The quick brown fox jumps over the lazy dog"`
     const PREFIX: &'static str = "/";
 
-    type Commands: CommandSet;
+    type Commands: CommandSet<Self>;
 
     fn commands(self) -> Self::Commands;
 
     fn execute_from_raw_unchecked(
         raw_input: impl Borrow<str>,
-        ctx: <Self::Commands as CommandSet>::ExtraContext,
-    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
-        let raw_input = raw_input.borrow();
-        let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
-
-        Self::parse_from(input.split_whitespace()).commands().dispatch(ctx)
-    }
-
-    fn try_execute_from_raw_unchecked(
-        raw_input: impl Borrow<str>,
-        ctx: <Self::Commands as CommandSet>::ExtraContext,
-    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+        ctx: <Self::Commands as CommandSet<Self>>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
         let raw_input = raw_input.borrow();
         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 
@@ -107,33 +93,15 @@ pub trait CommandContext: Parser {
 
     fn execute_from_raw(
         raw_input: impl Borrow<str>,
-        ctx: <Self::Commands as CommandSet>::ExtraContext,
-    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
-        Self::parse_from(raw_input.borrow().split_whitespace()).commands().dispatch(ctx)
-    }
-
-    fn try_execute_from_raw(
-        raw_input: impl Borrow<str>,
-        ctx: <Self::Commands as CommandSet>::ExtraContext,
-    ) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+        ctx: <Self::Commands as CommandSet<Self>>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
         Self::try_parse_from(raw_input.borrow().split_whitespace())?.commands().dispatch(ctx)
     }
 
     fn execute_from<I, T>(
         args: I,
-        ctx: <Self::Commands as CommandSet>::ExtraContext,
-    ) -> Result<<Self::Commands as CommandSet>::ReturnType>
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
-        Self::parse_from(args).commands().dispatch(ctx)
-    }
-
-    fn try_execute_from<I, T>(
-        args: I,
-        ctx: <Self::Commands as CommandSet>::ExtraContext,
-    ) -> Result<<Self::Commands as CommandSet>::ReturnType>
+        ctx: <Self::Commands as CommandSet<Self>>::ExtraContext,
+    ) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
@@ -141,11 +109,7 @@ pub trait CommandContext: Parser {
         Self::try_parse_from(args)?.commands().dispatch(ctx)
     }
 
-    fn execute(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
-        Self::parse().commands().dispatch(ctx)
-    }
-
-    fn try_execute(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+    fn execute(ctx: <Self::Commands as CommandSet<Self>>::ExtraContext) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
         Self::try_parse()?.commands().dispatch(ctx)
     }
 }
@@ -163,29 +127,29 @@ pub trait CommandContext: Parser {
 //
 //     fn commands(&self) -> Self::Commands;
 //
-//     async fn execute_from_raw_unchecked(raw_input: impl Borrow<str> + Send) -> <Self::Commands as CommandSet>::ReturnType {
+//     async fn execute_from_raw_unchecked(raw_input: impl Borrow<str> + Send) -> <Self::Commands as CommandSet<Self>>::ReturnType {
 //         let raw_input = raw_input.borrow();
 //         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 //
 //         Self::parse_from(input.split_whitespace()).commands().dispatch(ctx)
 //     }
 //
-//     async fn try_execute_from_raw_unchecked(raw_input: impl Borrow<str> + Send) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+//     async fn try_execute_from_raw_unchecked(raw_input: impl Borrow<str> + Send) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
 //         let raw_input = raw_input.borrow();
 //         let input = raw_input.strip_prefix(Self::PREFIX).unwrap_or(raw_input);
 //
 //         Ok(Self::try_parse_from(input.split_whitespace())?.commands().dispatch(ctx))
 //     }
 //
-//     async fn execute_from_raw(raw_input: impl Borrow<str> + Send) -> <Self::Commands as CommandSet>::ReturnType {
+//     async fn execute_from_raw(raw_input: impl Borrow<str> + Send) -> <Self::Commands as CommandSet<Self>>::ReturnType {
 //         Self::parse_from(raw_input.borrow().split_whitespace()).dispatch(ctx).await
 //     }
 //
-//     async fn try_execute_from_raw(raw_input: impl Borrow<str> + Send) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+//     async fn try_execute_from_raw(raw_input: impl Borrow<str> + Send) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
 //         Ok(Self::try_parse_from(raw_input.borrow().split_whitespace())?.dispatch(ctx).await)
 //     }
 //
-//     async fn execute_from<I, T>(args: I) -> <Self::Commands as CommandSet>::ReturnType
+//     async fn execute_from<I, T>(args: I) -> <Self::Commands as CommandSet<Self>>::ReturnType
 //     where
 //         I: IntoIterator<Item = T> + Send,
 //         // T doesn't need `Send` because clap consumes all of the arguments
@@ -197,7 +161,7 @@ pub trait CommandContext: Parser {
 //         Self::parse_from(args).dispatch(ctx).await
 //     }
 //
-//     async fn try_execute_from<I, T>(args: I) -> Result<<Self::Commands as CommandSet>::ReturnType>
+//     async fn try_execute_from<I, T>(args: I) -> Result<<Self::Commands as CommandSet<Self>>::ReturnType>
 //     where
 //         I: IntoIterator<Item = T> + Send,
 //         // T doesn't need `Send` because clap consumes all of the arguments
@@ -209,11 +173,11 @@ pub trait CommandContext: Parser {
 //         Ok(Self::try_parse_from(args)?.dispatch(ctx).await)
 //     }
 //
-//     async fn dispatch() -> <Self::Commands as CommandSet>::ReturnType {
+//     async fn dispatch() -> <Self::Commands as CommandSet<Self>>::ReturnType {
 //         Self::parse().dispatch(ctx).await
 //     }
 //
-//     async fn try_dispatch() -> Result<<Self::Commands as CommandSet>::ReturnType> {
+//     async fn try_dispatch() -> Result<<Self::Commands as CommandSet<Self>>::ReturnType> {
 //         Ok(Self::try_parse()?.dispatch(ctx).await)
 //     }
 // }
