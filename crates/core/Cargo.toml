@@ -18,6 +18,7 @@
   clap.workspace = true
   futures.workspace = true
   serenity.workspace = true
+  tokio.workspace = true
 
   harmony-autonomy.workspace = true
 
@@ -27,7 +28,6 @@
   polars = "0.53.0"
   rand = "0.10.1"
   signal-hook = "0.4.4"
-  tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread", "signal", "rt"] }
 
 [dev-dependencies]
   criterion.workspace = true

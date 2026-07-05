@@ -2,8 +2,12 @@
   resolver = "3"
   members = [
       "crates/core",
+
       "crates/autonomy",
       "crates/autonomy-derive",
+
+      "crates/enum-trait",
+      "crates/enum-trait-derive",
   ]
 
   [workspace.package]
@@ -20,19 +24,25 @@
     meta.flux.enabled = true
 
   [workspace.dependencies]
-    harmony-autonomy.path = "crates/autonomy"
-    harmony-autonomy-derive.path = "crates/autonomy-derive"
     chronobot.path = "crates/core"
 
+    enum-trait.path = "crates/enum-trait"
+    enum-trait-derive.path = "crates/enum-trait-derive"
+
+    harmony-autonomy.path = "crates/autonomy"
+    harmony-autonomy-derive.path = "crates/autonomy-derive"
+
     anyhow = "1.0.102"
+    async-trait = "0.1.89"
     clap = { version = "4.6.1", features = ["derive"] }
     futures = "0.3.32"
     serenity = { version = "0.12.5", features = ["chrono", "client"] }
-    async-trait = "0.1.89"
+    tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread", "signal", "rt"] }
 
     # dev dependencies
     criterion = "0.8.2"
 
+    # normal dependency but not pulled from crates.io
     [workspace.dependencies.flux-rs]
       git = "https://github.com/flux-rs/flux.git"
       rev = "7c5cbe71b819ff77c81f3e5283dfb5d18f52669c"

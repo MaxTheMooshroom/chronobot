@@ -22,7 +22,7 @@
         imports = [ flux-rs.flakeModules.perSystem-moduleArgs ];
 
         perSystem =
-          { self', pkgs, fluxPlatform, ... }:
+          { self', pkgs, fluxPlatform, fluxPackages, ... }:
           {
             packages = {
               default = self'.packages.chronobot;
@@ -45,9 +45,10 @@
 
             devShells.default = pkgs.mkShell {
               packages = with pkgs; [
-                # fluxPlatform.fluxPackages.rust-bins
+                fluxPackages.flux-bins
                 fluxPlatform.cargo
                 cargo-workspaces
+                cargo-expand
               ];
             };
         };

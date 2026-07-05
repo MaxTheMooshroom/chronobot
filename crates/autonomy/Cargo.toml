@@ -22,6 +22,10 @@
 
   anyhow.workspace = true
   clap.workspace = true
+  enum-trait.workspace = true
+
+  serenity.workspace = true
+  tokio.workspace = true
 
   harmony-autonomy-derive.workspace = true
 

@@ -16,6 +16,8 @@ impl AsyncExecutor {
         todo!()
     }
 
+    pub fn get(&self) -> tokio::Handle { todo!() }
+
     pub fn block_on<F: Future>(&self, future: F) -> F::Output {
         self.rt.get().unwrap().block_on(future)
     }

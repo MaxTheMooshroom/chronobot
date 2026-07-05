@@ -16,7 +16,7 @@ use clap::Parser;
 
 use commands::roll::SubcommandRoll;
 
-use harmony_autonomy::CommandSet;
+// use harmony_autonomy::CommandSet;
 
 /// Performs rolls of predefined groups of dice.
 ///
