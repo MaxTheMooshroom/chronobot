@@ -20,7 +20,7 @@
   serenity.workspace = true
   tokio.workspace = true
 
-  harmony-autonomy.workspace = true
+  h-autonomy.workspace = true
 
   chrono = "0.4.41"
   derive_more = { version = "2.1.1", features = ["deref"] }

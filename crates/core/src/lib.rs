@@ -3,7 +3,6 @@
 
 pub mod bot;
 pub mod chrono;
-pub mod cli;
 pub mod commands;
 pub mod consts;
 pub mod env;
@@ -12,11 +11,11 @@ pub mod tables;
 pub mod util;
 
 use anyhow::{anyhow, Result};
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 use commands::roll::SubcommandRoll;
 
-// use harmony_autonomy::CommandSet;
+use h_autonomy::{CommandContext, CommandSet};
 
 /// Performs rolls of predefined groups of dice.
 ///
@@ -27,8 +26,8 @@ pub struct CommandRoll {
     pub roll: SubcommandRoll,
 }
 
-#[derive(Parser)]
-#[command(version, about)]
+#[derive(Subcommand, Debug)]
+#[non_exhaustive]
 pub enum Chronobot {
     /// A one-off command for Chronobot to roll a given dice-pool.
     Roll {
@@ -42,22 +41,54 @@ pub enum Chronobot {
     DiscordBot,
 }
 
-fn roll_main(roll: SubcommandRoll) -> Result<!> {
-    roll.do_rolls()?;
-
-    std::process::exit(0)
+/// A program for running games of chronomutants in various settings.
+/// The default setting is Discord, as a bot.
+///
+/// Commissioned by Gary.
+#[derive(Parser, Debug)]
+#[command(version, about)]
+#[non_exhaustive]
+pub struct ChronobotArgs {
+    #[command(subcommand)]
+    cmd: Chronobot,
 }
 
-impl Chronobot {
-    pub fn parse() -> Self { Parser::parse() }
+// fn roll_main(roll: SubcommandRoll) -> Result<!> {
+//     roll.do_rolls()?;
+//
+//     std::process::exit(0)
+// }
 
-    pub fn execute(self) -> Result<!> {
-        use Chronobot::*;
+impl CommandSet for Chronobot {
+    type ExtraContext = ();
+    type ReturnType = !;
 
+    fn dispatch(self, ec: Self::ExtraContext) -> Result<Self::ReturnType> {
         match self {
-            Roll{ inner } => roll_main(inner),
-            DiscordBot => commands::bot::discord_bot_main(),
+            // Chronobot::Roll { inner } => roll_main(inner),
+            Chronobot::Roll { inner } => {
+                inner.do_rolls()?;
+
+                Ok(std::process::exit(0))
+            },
+            Chronobot::DiscordBot => commands::bot::discord_bot_main(),
         }
+    }
+}
+
+impl CommandContext for ChronobotArgs {
+    type Commands = Chronobot;
+
+    fn commands(self) -> Self::Commands {
+        self.cmd
+    }
+}
+
+impl ChronobotArgs {
+    /// A convenience wrapper around [`ChronobotArgs`]' implementation of
+    /// [`CommandContext::execute`].
+    pub fn execute() -> Result<!> {
+        <Self as CommandContext>::execute(())
     }
 }
 

@@ -29,8 +29,8 @@
     enum-trait.path = "crates/enum-trait"
     enum-trait-derive.path = "crates/enum-trait-derive"
 
-    harmony-autonomy.path = "crates/autonomy"
-    harmony-autonomy-derive.path = "crates/autonomy-derive"
+    h-autonomy.path = "crates/autonomy"
+    # h-autonomy-derive.path = "crates/autonomy-derive"
 
     anyhow = "1.0.102"
     async-trait = "0.1.89"

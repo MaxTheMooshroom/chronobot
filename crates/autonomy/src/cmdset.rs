@@ -8,7 +8,7 @@ use std::borrow::Borrow;
 use std::ffi::OsString;
 use std::future::Future;
 
-// pub use harmony_autonomy_derive::{CommandContext, CommandSet};
+// pub use h_autonomy_derive::{CommandContext, CommandSet};
 
 pub trait CommandDelegate {
     type ExtraContext = ();
@@ -49,7 +49,7 @@ pub trait CommandDelegate {
 /// ```
 /// # use clap::{Parser, Subcommand};
 /// # // use enum_trait::{Enum, NotEnum};
-/// # use harmony_autonomy::cmdset::{CommandContext, CommandDelegate, CommandSet};
+/// # use h_autonomy::cmdset::{CommandContext, CommandDelegate, CommandSet};
 /// #[derive(Subcommand, CommandSet)]
 /// #[cmdset(returns = )]
 /// enum ExampleEnum {
@@ -67,7 +67,7 @@ pub trait CommandSet: Subcommand {
     //     A(a, b) => delegate_a(ec, args),
     //     ...
     // }
-    fn dispatch(&self, ec: Self::ExtraContext) -> Result<Self::ReturnType>;
+    fn dispatch(self, ec: Self::ExtraContext) -> Result<Self::ReturnType>;
 
     // #[cfg(feature = "async")]
     // fn dispatch_async(&self) -> Self::ReturnType;
@@ -141,11 +141,11 @@ pub trait CommandContext: Parser {
         Self::try_parse_from(args)?.commands().dispatch(ctx)
     }
 
-    fn dispatch(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+    fn execute(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
         Self::parse().commands().dispatch(ctx)
     }
 
-    fn try_dispatch(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
+    fn try_execute(ctx: <Self::Commands as CommandSet>::ExtraContext) -> Result<<Self::Commands as CommandSet>::ReturnType> {
         Self::try_parse()?.commands().dispatch(ctx)
     }
 }

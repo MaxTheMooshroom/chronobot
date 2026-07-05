@@ -8,7 +8,7 @@ mod cmdset;
 pub mod runtime;
 pub mod util;
 
-// pub use cmdset::{CommandDelegate, CommandSet};
+pub use cmdset::{CommandContext, CommandSet};
 
 // #[cfg(feature = "async")]
 // pub use cmdset::CommandDelegateAsync;

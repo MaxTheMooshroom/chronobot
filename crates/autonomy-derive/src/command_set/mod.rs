@@ -44,7 +44,7 @@ impl std::cmp::PartialEq<Punctuated<PathSegment, Token![::]>> for PathComponents
 
 const VALID_ATTRIBUTE_PATHS_DELEGATE: &[PathComponents] = &[
     PathComponents(&[ "delegate" ]),
-    PathComponents(&[ "harmony_autonomy", "delegate" ]),
+    PathComponents(&[ "h_autonomy", "delegate" ]),
 ];
 
 fn sanitize_name(mut s: String) -> String {

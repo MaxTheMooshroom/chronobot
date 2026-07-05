@@ -1,5 +1,5 @@
 [package]
-  name = "harmony-autonomy"
+  name = "h-autonomy"
 
   version.workspace = true
   description.workspace = true
@@ -27,7 +27,7 @@
   serenity.workspace = true
   tokio.workspace = true
 
-  # harmony-autonomy-derive.workspace = true
+  # h-autonomy-derive.workspace = true
 
   async-trait = { workspace = true, optional = true }
 

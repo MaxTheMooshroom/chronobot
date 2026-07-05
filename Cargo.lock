@@ -443,7 +443,7 @@ dependencies = [
  "derive_more",
  "dotenvy",
  "futures",
- "harmony-autonomy",
+ "h-autonomy",
  "polars",
  "rand 0.10.1",
  "serenity",
@@ -1206,6 +1206,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
+name = "h-autonomy"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "clap",
+ "flux-rs",
+ "serenity",
+ "tokio",
+]
+
+[[package]]
+name = "h-autonomy-derive"
+version = "0.1.0"
+dependencies = [
+ "convert_case",
+ "deluxe",
+ "flux-rs",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "h2"
 version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1236,30 +1260,6 @@ dependencies = [
  "num-traits",
  "serde",
  "zerocopy",
-]
-
-[[package]]
-name = "harmony-autonomy"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap",
- "flux-rs",
- "serenity",
- "tokio",
-]
-
-[[package]]
-name = "harmony-autonomy-derive"
-version = "0.1.0"
-dependencies = [
- "convert_case",
- "deluxe",
- "flux-rs",
- "proc-macro2",
- "quote",
- "syn 2.0.117",
 ]
 
 [[package]]
